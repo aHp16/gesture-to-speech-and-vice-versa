@@ -5,10 +5,11 @@ A deep learning-based system that translates hand gestures into audible speech, 
 ## Features
 
 - Real-time gesture recognition using webcam input
-- Speech output using text-to-speech synthesis
-- Support for both alphabets and dynamic gestures
+- Gesture to Speech: Recognizes hand gestures in real-time and converts them into spoken words using text-to-speech synthesis
+- Text to Gesture: Converts typed text into corresponding sign language gestures (gesture-based)
+- Support for both static (alphabets and numbers) and dynamic gestures
 - Intuitive web interface using Flask, HTML/CSS, and JavaScript
-- Custom-trained CNN and 3D CNN models
+- Custom-trained MobileNetV2 CNN and 3D CNN models
 - Works offline after initial setup
 
 ## Technologies Used
@@ -16,7 +17,7 @@ A deep learning-based system that translates hand gestures into audible speech, 
 - Python, Flask
 - OpenCV for gesture input capture
 - TensorFlow/Keras for model training and inference
-- Text-to-Speech (pyttsx3 or gTTS)
+- Text-to-Speech (text-to-speech synthesis)
 - HTML/CSS/JavaScript for frontend
 - Apache 2.0 Licensed
 
@@ -57,3 +58,14 @@ Gesture-to-Speech/
 ├── class_indices.json
 
 └── README.md
+
+## Note on Datasets & Model Files
+Due to GitHub's file size limitations and storage constraints, the following assets are not included in this repository:
+
+dataset/ folders (containing image and video gesture data)
+
+static/ videos (the videos displayed for the feature text-to-gesture)
+
+models/isl_3dcnn_model.h5 (the trained 3D CNN model for dynamic gestures)
+
+If you're interested in accessing these resources for academic or research purposes, feel free to reach out — I'd be happy to share them. (You can reach me via the email listed on my GitHub profile)
