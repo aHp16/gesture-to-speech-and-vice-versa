@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Text to Gesture Translation</title>
+    <style>
+        body {
+            font-family: Arial;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        h2, h3 {
+            text-align: center;
+        }
+
+        input, button {
+            padding: 10px;
+            font-size: 16px;
+            margin: 10px;
+        }
+
+        #video-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        video {
+            border: 1px solid #333;
+            height: 480px;
+            width: 720px;
+        }
+
+        .error {
+            color: red;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Text to Gesture Translator</h2>
+
+    <form method="POST">
+        <input type="text" name="text_input" placeholder="Enter here..." required autocomplete="off">
+        <button type="submit">Translate</button>
+    </form>
+
+    {% if video_list %}
+        <h3>Gesture for "{{ input_text }}"</h3>
+        <div id="video-container">
+            <video id="gesturePlayer" autoplay muted playsinline></video>
+        </div>
+    {% endif %}
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <script>
+        const videoList = {{ video_list | tojson | safe }};
+        const player = document.getElementById('gesturePlayer');
+        let currentVideo = 0;
+
+        function playNextVideo() {
+            if (currentVideo >= videoList.length) {
+                player.style.display = 'none'; // hide after all videos
+                return;
+            }
+
+            player.src = videoList[currentVideo];
+            player.load();
+            player.style.display = 'block';
+            player.play().catch(error => {
+                console.error('Autoplay failed:', error);
+            });
+            currentVideo++;
+        }
+
+        if (player && videoList.length > 0) {
+            player.addEventListener('ended', playNextVideo);
+            playNextVideo();
+        }
+
+        // Redirect to home page when back arrow is used
+        window.addEventListener('popstate', function () {
+            window.location.replace('/');
+        });
+
+        // Push state to activate popstate
+        history.pushState({}, '', window.location.href);
+    </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign Language Translator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>ISL AlphaNumericals Recognition</h1>
+    <video id="webcam" autoplay playsinline></video>
+    <canvas id="canvas" style="display: none;"></canvas>
+    <div class="controls">
+        <button onclick="capture()">Predict</button>
+        <p id="prediction">Prediction: ...</p>
+        <textarea id="sentenceBox" rows="3" cols="50" placeholder="Predicted txt"></textarea>
+        <br>
+        <button onclick="speakText()">Speak</button>
+    </div>
+
+    <script>
+        const video = document.getElementById('webcam');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const predictionText = document.getElementById('prediction');
+        const sentenceBox = document.getElementById('sentenceBox');
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => video.srcObject = stream);
+
+        function capture() {
+            canvas.width = 128;
+            canvas.height = 128;
+            context.drawImage(video, 0, 0, 128, 128);
+            const dataUrl = canvas.toDataURL('image/jpeg');
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: dataUrl })
+            })
+            .then(res => res.json())
+            .then(data => {
+                const pred = data.prediction;
+                predictionText.innerText = `Prediction: ${pred}`;
+                sentenceBox.value += pred;
+            });
+        }
+
+        function speakText() {
+            const synth = window.speechSynthesis;
+            const text = sentenceBox.value.trim();
+            if (text) {
+                const utter = new SpeechSynthesisUtterance(text);
+                synth.speak(utter);
+            }
+        }
+    </script>
+</body>
+</html>
