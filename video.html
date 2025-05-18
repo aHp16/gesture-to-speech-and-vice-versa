@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gesture Recognition</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+            padding-top: 30px;
+        }
+
+        video, canvas {
+            border: 4px solid #333;
+            border-radius: 12px;
+            margin: 20px;
+        }
+
+        video {
+            width: 640px;
+            height: 480px;
+        }
+
+        #prediction {
+            font-size: 26px;
+            color: #007BFF;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h2>ISL Gesture Prediction</h2>
+    <video id="video" autoplay></video>
+    <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
+
+    <div>
+        <button onclick="startCapture()">Start</button>
+        <button onclick="stopCapture()">Stop</button>
+    </div>
+
+    <div id="prediction">Prediction: -</div>
+    <button onclick="speakPrediction()">Speak</button>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let stream;
+        let frameBuffer = [];
+        let capturing = false;
+        let lastPrediction = "";
+
+        async function startCapture() {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            capturing = true;
+            frameBuffer = [];
+            captureFrames();
+        }
+
+        function stopCapture() {
+            capturing = false;
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        async function captureFrames() {
+            if (!capturing) return;
+
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const frame = canvas.toDataURL('image/png');  // Use lossless PNG
+            frameBuffer.push(frame);
+
+            if (frameBuffer.length === 16) {
+                await sendToServer(frameBuffer);
+                frameBuffer = [];
+            }
+
+            setTimeout(captureFrames, 300);  // Adjust capture speed (300ms between frames)
+        }
+
+        async function sendToServer(frames) {
+            const res = await fetch('/predict_gesture', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ frames: frames })
+            });
+
+            const data = await res.json();
+            //document.getElementById('prediction').innerText = "Prediction: " + data.prediction;
+            lastPrediction = data.prediction;  // ✅ Update the global variable
+            document.getElementById('prediction').innerText = "Prediction: " + lastPrediction;
+        }
+        function speakPrediction() {
+            const synth = window.speechSynthesis;
+            if (lastPrediction && lastPrediction !== "-") {
+                const utter = new SpeechSynthesisUtterance(lastPrediction);
+                synth.speak(utter);
+            }
+        }
+    </script>
+</body>
+</html>

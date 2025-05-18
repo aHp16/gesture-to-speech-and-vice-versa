@@ -1,0 +1,32 @@
+body {
+    text-align: center;
+    font-family: sans-serif;
+    background: #f0f0f0;
+}
+
+video {
+    width: 480px;
+    height: auto;
+    border: 3px solid #444;
+    margin-top: 20px;
+    border-radius: 12px;
+}
+
+.controls {
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 8px;
+    background-color: skyblue;
+    color: white;
+    border: none;
+}
+
+#prediction {
+    margin-top: 15px;
+    font-size: 24px;
+}
